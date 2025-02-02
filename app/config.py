@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     model_config = ConfigDict(extra='ignore')
 
     # General
+    SENTRY_DSN: str = ''
     DEBUG: bool = False
     TIMEZONE: timezone = timezone(offset=timedelta(hours=3), name='Europe/Moscow')
 

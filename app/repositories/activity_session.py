@@ -40,12 +40,16 @@ class ActivitySessionRepository:
         return result.modified_count > 0
 
     async def get_user_last_activity_session(
-        self, user_id: str, start_at_max: datetime.datetime
+        self,
+        user_id: str,
+        start_at_max: datetime.datetime,
+        channel_id: str,
     ) -> ActivitySession | None:
         result = await self.collection.find_one(
             {
                 'user_discord_id': user_id,
                 'start_at': {'$lte': start_at_max},
+                'channel_id': channel_id,
             },
             sort=[('start_at', -1)],
         )

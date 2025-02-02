@@ -12,6 +12,7 @@ pydantic-settings = "^2.7.1"
 pymongo = "^4.10.1"
 aio-pika = "^9.5.4"
 colorlog = "^6.9.0"
+sentry-sdk = "^2.20.0"
 
 
 [tool.poetry.group.dev.dependencies]

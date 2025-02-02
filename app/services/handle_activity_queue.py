@@ -38,6 +38,7 @@ class ActivityHandler:
             activity_session = await self._activity_session_repository.get_user_last_activity_session(
                 user_id=self.activity_message.user_id,
                 start_at_max=self.activity_message.datetime,
+                channel_id=self.activity_message.channel_id,
             )
 
             if not activity_session:
