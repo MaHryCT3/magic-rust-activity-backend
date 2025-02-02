@@ -39,9 +39,14 @@ class ActivitySessionRepository:
         )
         return result.modified_count > 0
 
-    async def get_user_last_activity_session(self, user_id: str) -> ActivitySession | None:
+    async def get_user_last_activity_session(
+        self, user_id: str, start_at_max: datetime.datetime
+    ) -> ActivitySession | None:
         result = await self.collection.find_one(
-            {'user_discord_id': user_id},
+            {
+                'user_discord_id': user_id,
+                'start_at': {'$lte': start_at_max},
+            },
             sort=[('start_at', -1)],
         )
         if result:
@@ -59,6 +64,7 @@ class ActivitySessionRepository:
     def _dict_to_object(mongo_data: dict) -> ActivitySession:
         mongo_data['microphone_mute_duration'] = datetime.timedelta(seconds=mongo_data['microphone_mute_duration'])
         mongo_data['sound_disabled_duration'] = datetime.timedelta(seconds=mongo_data['sound_disabled_duration'])
+        mongo_data['last_event_at'] = mongo_data['last_event_at'].replace(tzinfo=datetime.UTC)
         mongo_data['id'] = str(mongo_data['_id'])
         del mongo_data['_id']
         return ActivitySession(**mongo_data)
