@@ -82,7 +82,6 @@ class ActivityHandler:
         activity_session.sound_disabled_duration += self.activity_message.datetime - activity_session.last_event_at
 
     def _increase_microphone_muted_time(self, activity_session: ActivitySession):
-        print(self.activity_message.datetime, activity_session.last_event_at)
         activity_session.microphone_mute_duration += self.activity_message.datetime - activity_session.last_event_at
 
     def _handle_leave(self, activity_session: ActivitySession):
