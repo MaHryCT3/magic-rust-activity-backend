@@ -1,0 +1,50 @@
+[tool.poetry]
+name = "magic-rust-activity-backend"
+version = "0.1.0"
+description = ""
+authors = ["velizhanin_ie <velizhanin_ie@its.dev>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = {extras = ["standard"], version = "^0.115.6"}
+pydantic-settings = "^2.7.1"
+pymongo = "^4.10.1"
+aio-pika = "^9.5.4"
+colorlog = "^6.9.0"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.9.2"
+pre-commit = "^4.0.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.ruff.lint]
+select = ['Q', 'F', 'I', 'ANN', 'B', 'C4', 'TID', 'ARG', 'PLR']
+ignore = [
+    'ANN101', 'ANN204', 'ANN401', 'ANN002', 'ANN003',
+    'PLR0913', 'ANN202', 'ANN201', 'ANN001',
+    'ANN206', 'ANN102', 'C408'
+]
+# ANN - https://beta.ruff.rs/docs/rules/#flake8-annotations-ann,
+# PLR0913 - Too many arguments
+
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"] # Unused import
+
+[tool.ruff.format]
+quote-style = 'single'
+
+[tool.ruff.lint.flake8-quotes]
+docstring-quotes = "double"
+inline-quotes = "single"
+
+[tool.black]
+skip-string-normalization = true
+exclude = '(\.git|\.venv|\.idea)'
+line-length = 120

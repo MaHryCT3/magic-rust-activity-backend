@@ -1,0 +1,48 @@
+version: "3.9"
+services:
+  fastapi:
+    image: magic-rust-activity-backend
+    container_name: magic-rust-activity-backend
+    build: .
+    restart: "no"
+    command: fastapi dev
+    env_file: .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/code
+
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://mongo:mongo@mongo:27017/
+      ME_CONFIG_BASICAUTH: false
+
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    container_name: ip-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ./storage/rabbitmq/data/:/var/lib/rabbitmq/
+      - ./storage/rabbitmq/log/:/var/log/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=password
+      - RABBITMQ_DEFAULT_VHOST=activity
