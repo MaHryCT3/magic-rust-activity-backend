@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  fastapi:
+    image: ghcr.io/mahryct3/magic-rust-activity-backend:$CI_COMMIT_SHORT_SHA
+    container_name: magic-rust-activity-backend
+    restart: always
+    command: fastapi run
+    env_file: .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - /opt/magic-rust-backend-activity/.env:/app/.env

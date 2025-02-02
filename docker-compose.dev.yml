@@ -5,7 +5,7 @@ services:
     container_name: magic-rust-activity-backend
     build: .
     restart: "no"
-    command: fastapi dev
+    command: fastapi run
     env_file: .env
     ports:
       - "8000:8000"

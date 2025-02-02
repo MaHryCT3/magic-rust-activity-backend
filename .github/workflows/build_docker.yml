@@ -1,0 +1,44 @@
+name: Build Backend
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  CONTAINER_RELEASE_IMAGE: ghcr.io/mahryct3/magic-rust-activity-backend:${{ github.sha }}
+  CONTAINER_MAIN_IMAGE: ghcr.io/mahryct3/magic-rust-activity-backend:${{ github.ref_name }}
+  CONTAINER_OLD_MAIN_IMAGE: ghcr.io/mahryct3/magic-rust-activity-backend:main-old
+
+jobs:
+  build-docker:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to the Container registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and push Docker image
+        run: |
+          if docker pull $CONTAINER_MAIN_IMAGE; then
+            echo "Existing image found for $CONTAINER_MAIN_IMAGE"
+            docker build --cache-from $CONTAINER_MAIN_IMAGE -f Dockerfile -t $CONTAINER_RELEASE_IMAGE .
+            docker push $CONTAINER_RELEASE_IMAGE
+            docker tag $CONTAINER_MAIN_IMAGE $CONTAINER_OLD_MAIN_IMAGE
+            docker push $CONTAINER_OLD_MAIN_IMAGE
+            docker tag $CONTAINER_RELEASE_IMAGE $CONTAINER_MAIN_IMAGE
+            docker push $CONTAINER_MAIN_IMAGE
+          else
+            echo "No existing image found for $CONTAINER_MAIN_IMAGE"
+            docker build --cache-from $CONTAINER_MAIN_IMAGE -f Dockerfile -t $CONTAINER_MAIN_IMAGE .
+            docker push $CONTAINER_MAIN_IMAGE
+          fi

@@ -1,0 +1,44 @@
+name: Deploy prod
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: "Deploy to prod"
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Wait for builds to succeed
+        uses: lewagon/wait-on-check-action@v1.3.4
+        with:
+          ref: ${{ github.ref }}
+          check-name: 'build-docker'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 5
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up SSH and Copy Environment File
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+          chmod 600 ~/.ssh/config
+
+          echo "${{ secrets.PROD_ENV }}" | base64 -d > /tmp/.env
+
+          scp -o StrictHostKeyChecking=no /tmp/.env ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/opt/magic-rust-backend-activity/.env
+          scp -o StrictHostKeyChecking=no docker-compose.prod.yml ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/opt/magic-rust-backend-activity/docker-compose.yml
+          scp -o StrictHostKeyChecking=no deploy.sh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/opt/magic-rust-backend-activity/deploy.sh
+
+      - name: Deploy Application
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} << 'EOF'
+            export CI_COMMIT_SHORT_SHA=${{ github.sha }}
+            
+            bash /opt/magic-rust-backend-activity/deploy.sh
+          EOF
