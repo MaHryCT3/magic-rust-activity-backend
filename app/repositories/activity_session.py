@@ -141,8 +141,8 @@ class ActivitySessionRepository:
             {'$sort': {'effective_duration': -1}},
         ]
 
-        if offset:
-            pipeline.append({'$skip': offset})
+        if offset and limit:
+            pipeline.append({'$skip': offset * limit})
 
         if limit:
             pipeline.append({'$limit': limit})
