@@ -29,7 +29,7 @@ select = ['Q', 'F', 'I', 'ANN', 'B', 'C4', 'TID', 'ARG', 'PLR']
 ignore = [
     'ANN101', 'ANN204', 'ANN401', 'ANN002', 'ANN003',
     'PLR0913', 'ANN202', 'ANN201', 'ANN001',
-    'ANN206', 'ANN102', 'C408'
+    'ANN206', 'ANN102', 'C408', 'B008',
 ]
 # ANN - https://beta.ruff.rs/docs/rules/#flake8-annotations-ann,
 # PLR0913 - Too many arguments

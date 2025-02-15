@@ -56,6 +56,100 @@ class ActivitySessionRepository:
         if result:
             return self._dict_to_object(result)
 
+    async def filter_sessions(
+        self,
+        user_discord_id: str | None = None,
+        channel_id: str | None = None,
+        start_at: datetime.datetime | None = None,
+        end_at: datetime.datetime | None = None,
+        limit: int | None = None,
+    ) -> list[ActivitySession]:
+        query = {}
+
+        if user_discord_id:
+            query['user_discord_id'] = user_discord_id
+        if channel_id:
+            query['channel_id'] = channel_id
+        if start_at:
+            query['start_at'] = {'$gte': start_at}
+        if end_at:
+            query['end_at'] = {'$lte': end_at}
+        else:
+            query['end_at'] = {'$exists': True}
+
+        cursor = self.collection.find(query).sort('start_at', -1)
+        if limit:
+            cursor = cursor.limit(limit)
+
+        results = await cursor.to_list(None)
+        return [self._dict_to_object(doc) for doc in results]
+
+    async def aggregate_filtered_sessions(
+        self,
+        user_discord_id: str | None = None,
+        channel_id: str | None = None,
+        start_at: datetime.datetime | None = None,
+        end_at: datetime.datetime | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> list[dict]:
+        query = {}
+
+        if user_discord_id:
+            query['user_discord_id'] = user_discord_id
+        if channel_id:
+            query['channel_id'] = channel_id
+        if start_at:
+            query['start_at'] = {'$gte': start_at}
+        if end_at:
+            query['end_at'] = {'$lte': end_at}
+        else:
+            query['end_at'] = {'$exists': True}
+
+        pipeline = [
+            {'$match': query},
+            {
+                '$group': {
+                    '_id': '$user_discord_id',
+                    'total_session_duration': {
+                        '$sum': {
+                            '$divide': [
+                                {'$subtract': [{'$ifNull': ['$end_at', '$last_event_at']}, '$start_at']},
+                                1000,  # Делим миллисекунды на 1000, чтобы получить секунды
+                            ]
+                        }
+                    },
+                    'total_microphone_mute_duration': {'$sum': '$microphone_mute_duration'},
+                    'total_sound_disabled_duration': {'$sum': '$sound_disabled_duration'},
+                }
+            },
+            {
+                '$project': {
+                    '_id': 0,
+                    'user_discord_id': '$_id',
+                    'total_session_duration': 1,
+                    'total_microphone_mute_duration': 1,
+                    'total_sound_disabled_duration': 1,
+                    'effective_duration': {
+                        '$subtract': [
+                            {'$subtract': ['$total_session_duration', '$total_microphone_mute_duration']},
+                            '$total_sound_disabled_duration',
+                        ]
+                    },
+                }
+            },
+            {'$sort': {'effective_duration': -1}},
+        ]
+
+        if offset:
+            pipeline.append({'$skip': offset})
+
+        if limit:
+            pipeline.append({'$limit': limit})
+
+        results = await self.collection.aggregate(pipeline)
+        return await results.to_list(None)
+
     @staticmethod
     def _object_to_dict(activity_session: ActivitySession) -> dict:
         data = asdict(activity_session)

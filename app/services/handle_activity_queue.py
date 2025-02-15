@@ -1,3 +1,6 @@
+import datetime
+from typing import Final
+
 from app.config import logger
 from app.repositories.activity_session import ActivitySessionRepository
 from app.structs.activity_message import ActivityMessage
@@ -6,6 +9,8 @@ from app.structs.enums import ActivityStatus
 
 
 class ActivityHandler:
+    MAX_DELAY_BETWEEN_ACTIVITY: Final[datetime.timedelta] = datetime.timedelta(minutes=5)
+
     def __init__(self, activity_message: ActivityMessage):
         self.activity_message = activity_message
 
@@ -40,6 +45,13 @@ class ActivityHandler:
                 start_at_max=self.activity_message.datetime,
                 channel_id=self.activity_message.channel_id,
             )
+
+            if (
+                activity_session
+                and self.activity_message.datetime - activity_session.last_event_at > self.MAX_DELAY_BETWEEN_ACTIVITY
+            ):
+                logger.info(f'Session {activity_session} too long was inactive, and will be recreate')
+                activity_session = self._create_new_session()
 
             if not activity_session:
                 logger.info(f'Not found active session, for {self.activity_message}, creating new')

@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     TIMEZONE: timezone = timezone(offset=timedelta(hours=3), name='Europe/Moscow')
 
+    # Application
+    DISCORD_AUTHENTICATION_TOKEN: str
+
     # Database
     MONGO_HOST: str
     MONGO_PORT: int
