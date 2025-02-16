@@ -103,8 +103,6 @@ class ActivitySessionRepository:
             query['start_at'] = {'$gte': start_at}
         if end_at:
             query['end_at'] = {'$lte': end_at}
-        else:
-            query['end_at'] = {'$exists': True}
 
         pipeline = [
             {'$match': query},
