@@ -102,7 +102,10 @@ class ActivitySessionRepository:
         if start_at:
             query['start_at'] = {'$gte': start_at}
         if end_at:
-            query['end_at'] = {'$lte': end_at}
+            query['$or'] = [
+                {'end_at': {'$lte': end_at}},
+                {'last_event_at': {'$lt': end_at}},
+            ]
 
         pipeline = [
             {'$match': query},
