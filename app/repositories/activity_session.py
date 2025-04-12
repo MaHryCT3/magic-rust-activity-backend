@@ -6,15 +6,15 @@ from pymongo.asynchronous.collection import AsyncCollection
 from pymongo.asynchronous.database import AsyncDatabase
 
 from app.config import settings
-from app.db.connection import get_default_mongo_database
+from app.db.connection import get_activity_mongo_database
 from app.structs.activity_session import ActivitySession
 
 
 class ActivitySessionRepository:
     def __init__(self, database: AsyncDatabase | None = None):
-        self.database = database or get_default_mongo_database()
+        self.database = database or get_activity_mongo_database()
 
-        self.collection: AsyncCollection = self.database[settings.MONGO_ACTIVITY_SESSION_DATABASE]
+        self.collection: AsyncCollection = self.database[settings.MONGO_ACTIVITY_SESSION_COLLECTION]
 
     async def get(self, id: str) -> ActivitySession:
         row_object = await self.collection.find_one(ObjectId(id))
@@ -56,35 +56,7 @@ class ActivitySessionRepository:
         if result:
             return self._dict_to_object(result)
 
-    async def filter_sessions(
-        self,
-        user_discord_id: str | None = None,
-        channel_id: str | None = None,
-        start_at: datetime.datetime | None = None,
-        end_at: datetime.datetime | None = None,
-        limit: int | None = None,
-    ) -> list[ActivitySession]:
-        query = {}
-
-        if user_discord_id:
-            query['user_discord_id'] = user_discord_id
-        if channel_id:
-            query['channel_id'] = channel_id
-        if start_at:
-            query['start_at'] = {'$gte': start_at}
-        if end_at:
-            query['end_at'] = {'$lte': end_at}
-        else:
-            query['end_at'] = {'$exists': True}
-
-        cursor = self.collection.find(query).sort('start_at', -1)
-        if limit:
-            cursor = cursor.limit(limit)
-
-        results = await cursor.to_list(None)
-        return [self._dict_to_object(doc) for doc in results]
-
-    async def aggregate_filtered_sessions(
+    async def aggregate_filtered_statistics_sessions(
         self,
         user_discord_id: str | None = None,
         channel_id: str | None = None,

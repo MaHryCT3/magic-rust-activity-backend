@@ -8,5 +8,9 @@ def get_default_mongo_client() -> AsyncMongoClient:
     return AsyncMongoClient(settings.MONGO_URI)
 
 
-def get_default_mongo_database() -> AsyncDatabase:
-    return get_default_mongo_client()[settings.MONGO_DB]
+def get_activity_mongo_database() -> AsyncDatabase:
+    return get_default_mongo_client()[settings.MONGO_ACTIVITY_DB]
+
+
+def get_tickets_mongo_database() -> AsyncDatabase:
+    return get_default_mongo_client()[settings.MONGO_TICKETS_DB]

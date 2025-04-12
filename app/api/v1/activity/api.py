@@ -1,10 +1,13 @@
 import datetime
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from app.dependencies import discord_authentication
 from app.repositories.activity_session import ActivitySessionRepository
 
-activity_router = APIRouter()
+activity_router = APIRouter(
+    dependencies=[Depends(discord_authentication)],
+)
 
 
 @activity_router.get(path='/')
@@ -16,7 +19,7 @@ async def get_user_activities(
     limit: int = 10,
     offset: int | None = None,
 ):
-    data = await ActivitySessionRepository().aggregate_filtered_sessions(
+    data = await ActivitySessionRepository().aggregate_filtered_statistics_sessions(
         user_discord_id=user_discord_id,
         channel_id=channel_id,
         start_at=start_at,
