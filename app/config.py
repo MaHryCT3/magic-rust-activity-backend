@@ -22,9 +22,11 @@ class Settings(BaseSettings):
     MONGO_PORT: int
     MONGO_USERNAME: str
     MONGO_PASSWORD: str
-    MONGO_DB: str
+    MONGO_ACTIVITY_DB: str = 'activity'
+    MONGO_TICKETS_DB: str = 'tickets'
 
-    MONGO_ACTIVITY_SESSION_DATABASE: str = 'activity_session'
+    MONGO_ACTIVITY_SESSION_COLLECTION: str = 'activity_session'
+    MONGO_HISTORY_LOGS_COLLECTION: str = 'history_logs'
 
     # MQ
     RABBIT_MQ_URI: str
