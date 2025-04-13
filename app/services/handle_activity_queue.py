@@ -1,11 +1,11 @@
 import datetime
 from typing import Final
 
-from app.config import logger
 from app.repositories.activity_session import ActivitySessionRepository
 from app.structs.activity_message import ActivityMessage
 from app.structs.activity_session import ActivitySession
 from app.structs.enums import ActivityStatus
+from core.logger import logger
 
 
 class ActivityHandler:
