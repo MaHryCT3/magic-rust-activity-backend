@@ -3,10 +3,10 @@ import json
 
 from aio_pika import IncomingMessage
 
-from app.config import logger
 from app.services.handle_activity_queue import ActivityHandler
 from app.structs.activity_message import ActivityMessage
 from app.structs.enums import ActivitySessionChannelType, ActivityStatus
+from core.logger import logger
 
 
 async def activity_consume(message: IncomingMessage):

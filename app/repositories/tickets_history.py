@@ -40,6 +40,15 @@ class TicketHistoryRepository:
             {'$set': update_data},
         )
 
+    async def get_ticket_by_ticket_number(self, ticket_number: int) -> TicketHistory | None:
+        result = await self.collection.find_one(
+            {
+                'ticket_number': ticket_number,
+            },
+        )
+        if result:
+            return self._dict_to_object(result)
+
     @staticmethod
     def _object_to_dict(ticket_history: TicketHistory) -> dict:
         data = asdict(ticket_history)
