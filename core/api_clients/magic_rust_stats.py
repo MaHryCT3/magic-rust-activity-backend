@@ -16,7 +16,7 @@ class MagicRustStatsAPI:
         self,
         ticket_number: int,
         author_discord_id: str,
-        moderator_discord_id: str,
+        moderator_discord_id: str | None,
         score: int,
         ticket_url: str,
         start_datetime: datetime.datetime,

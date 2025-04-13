@@ -30,7 +30,9 @@ async def send_new_ticket_score(ticket_history: TicketHistory):
     await magic_rust_client.send_ticket_with_score(
         ticket_number=ticket_history.ticket_number,
         author_discord_id=str(ticket_history.author_discord_id),
-        moderator_discord_id=str(ticket_history.last_moderator_answer_id),
+        moderator_discord_id=(
+            str(ticket_history.last_moderator_answer_id) if ticket_history.last_moderator_answer_id else None
+        ),
         score=ticket_history.score,
         ticket_url=make_history_file_url(ticket_history.id),
         start_datetime=ticket_history.start_datetime,
