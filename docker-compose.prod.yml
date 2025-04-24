@@ -11,6 +11,16 @@ services:
     volumes:
       - /opt/magic-rust-backend-activity/.env:/app/.env
 
+  dramatiq-worker:
+    image: magic-rust-activity-backend
+    container_name: magic-rust-activity-dramatiq-worker
+    build: .
+    restart: always
+    command: dramatiq app.tasks
+    env_file: .env
+    volumes:
+      - .:/code
+
   redis:
     image: redis:7.2-alpine
     restart: always
