@@ -12,14 +12,13 @@ services:
       - /opt/magic-rust-backend-activity/.env:/app/.env
 
   dramatiq-worker:
-    image: magic-rust-activity-backend
+    image: ghcr.io/mahryct3/magic-rust-activity-backend:$CI_COMMIT_SHORT_SHA
     container_name: magic-rust-activity-dramatiq-worker
-    build: .
     restart: always
     command: dramatiq app.tasks
     env_file: .env
     volumes:
-      - .:/code
+      - /opt/magic-rust-backend-activity/.env:/app/.env
 
   redis:
     image: redis:7.2-alpine
