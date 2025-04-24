@@ -13,6 +13,8 @@ pymongo = "^4.10.1"
 aio-pika = "^9.5.4"
 colorlog = "^6.9.0"
 sentry-sdk = {extras = ["fastapi"], version = "^2.20.0"}
+dramatiq = {extras = ["redis", "watch"], version = "^1.17.1"}
+assemblyai = "^0.38.0"
 
 
 [tool.poetry.group.dev.dependencies]
