@@ -23,6 +23,8 @@ def parse_craig_record_id_and_key(url: str) -> tuple[str, str]:
 
 
 class CraigVoiceInfoParser:
+    TRACKS_END_SIGN = 'Notes'
+
     def __init__(self, raw_info: list[str]) -> None:
         self.raw_info = raw_info
 
@@ -48,6 +50,8 @@ class CraigVoiceInfoParser:
         tracks: list[CraigVoiceInfoTrack] = []
         for raw_track in raw_tracks:
             if not raw_track:
+                break
+            if self.TRACKS_END_SIGN in raw_track:
                 break
 
             tracks.append(self._parse_track(raw_track))

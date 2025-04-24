@@ -14,15 +14,17 @@ class VoiceRecordsRepository(BaseRepository[VoiceRecord]):
     collection = get_voice_records_mongo_database()[settings.MONGO_VOICE_RECORDS_COLLECTION]
 
     async def update_process_status(self, id: str, new_status: VoiceProcessStatusEnum):
+        update_data = {'process_status': new_status}
         await self.collection.update_one(
             {'_id': ObjectId(id)},
-            {'process_status': new_status},
+            {'$set': update_data},
         )
 
     async def update_is_process_error(self, id: str, is_error: bool):
+        update_data = {'is_process_error': is_error}
         await self.collection.update_one(
             {'_id': ObjectId(id)},
-            {'is_process_error': is_error},
+            {'$set': update_data},
         )
 
     @staticmethod
