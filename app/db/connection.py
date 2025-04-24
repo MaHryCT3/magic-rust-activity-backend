@@ -14,3 +14,7 @@ def get_activity_mongo_database() -> AsyncDatabase:
 
 def get_tickets_mongo_database() -> AsyncDatabase:
     return get_default_mongo_client()[settings.MONGO_TICKETS_DB]
+
+
+def get_voice_records_mongo_database() -> AsyncDatabase:
+    return get_default_mongo_client()[settings.MONGO_VOICE_RECORDS_DB]

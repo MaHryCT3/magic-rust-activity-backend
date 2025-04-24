@@ -10,3 +10,9 @@ services:
       - "8000:8000"
     volumes:
       - /opt/magic-rust-backend-activity/.env:/app/.env
+
+  redis:
+    image: redis:7.2-alpine
+    restart: always
+    volumes:
+      - ./storage/redis:/data

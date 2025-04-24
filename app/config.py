@@ -1,5 +1,8 @@
 from datetime import timedelta, timezone
 
+import assemblyai as aai
+import dramatiq
+from dramatiq.brokers.redis import RedisBroker
 from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 
@@ -23,9 +26,13 @@ class Settings(BaseSettings):
     MONGO_PASSWORD: str
     MONGO_ACTIVITY_DB: str = 'activity'
     MONGO_TICKETS_DB: str = 'tickets'
+    MONGO_VOICE_RECORDS_DB: str = 'voice_records'
+
+    REDIS_URL: str
 
     MONGO_ACTIVITY_SESSION_COLLECTION: str = 'activity_session'
     MONGO_HISTORY_LOGS_COLLECTION: str = 'history_logs'
+    MONGO_VOICE_RECORDS_COLLECTION: str = 'voice_records'
 
     # MQ
     RABBIT_MQ_URI: str
@@ -36,9 +43,19 @@ class Settings(BaseSettings):
     MAGIC_RUST_STATS_URL: str
     MAGIC_RUST_STATS_TOKEN: str
 
+    ## ASSEMBLYAI AAI
+    ASSEMBLYAI_TOKEN: str
+
     @property
     def MONGO_URI(self) -> str:  # noqa
         return f'mongodb://{self.MONGO_USERNAME}:{self.MONGO_PASSWORD}@{self.MONGO_HOST}:{self.MONGO_PORT}'
 
 
 settings = Settings(_env_file='.env')
+dramatiq.set_broker(
+    RedisBroker(
+        url=settings.REDIS_URL,
+        middleware=[dramatiq.middleware.AsyncIO()],
+    )
+)
+aai.settings.api_key = settings.ASSEMBLYAI_TOKEN

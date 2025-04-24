@@ -8,6 +8,14 @@ define set-default-container
 	endif
 endef
 
+define set-default-file
+	ifndef f
+	f = test.py
+	endif
+endef
+
+set-file:
+	$(eval $(call set-default-file))
 
 set-container:
 	$(eval $(call set-default-container))
@@ -23,9 +31,11 @@ restart: set-container
 	docker compose -f docker-compose.dev.yml restart $(c)
 exec: set-container
 	docker compose -f docker-compose.dev.yml exec $(c) /bin/bash
+run: set-container
+	docker compose -f docker-compose.dev.yml run --rm $(c) python3 test_producer.py
 
 compile-reqs: set-container
 	poetry export --without-hashes > requirements.txt
 
 test: set-container
-	docker compose -f docker-compose.dev.yml run --rm $(c) python -m pytest
+	docker compose -f docker-compose.dev.yml run --rm $(c) bash -c 'python3 $(f)'

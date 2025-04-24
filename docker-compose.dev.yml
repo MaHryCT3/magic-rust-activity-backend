@@ -5,10 +5,20 @@ services:
     container_name: magic-rust-activity-backend
     build: .
     restart: "no"
-    command: fastapi run
+    command: fastapi dev --host 0.0.0.0
     env_file: .env
     ports:
       - "8000:8000"
+    volumes:
+      - .:/code
+
+  dramatiq-worker:
+    image: magic-rust-activity-backend
+    container_name: magic-rust-activity-dramatiq-worker
+    build: .
+    restart: always
+    command: dramatiq app.tasks
+    env_file: .env
     volumes:
       - .:/code
 
@@ -20,7 +30,8 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo
-
+    profiles:
+      - services
 
   mongo-express:
     image: mongo-express
@@ -32,6 +43,8 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
       ME_CONFIG_MONGODB_URL: mongodb://mongo:mongo@mongo:27017/
       ME_CONFIG_BASICAUTH: false
+    profiles:
+      - services
 
   rabbitmq:
     image: rabbitmq:4-management-alpine
@@ -46,3 +59,13 @@ services:
       - RABBITMQ_DEFAULT_USER=user
       - RABBITMQ_DEFAULT_PASS=password
       - RABBITMQ_DEFAULT_VHOST=activity
+    profiles:
+      - services
+
+  redis:
+    image: redis:7.2-alpine
+    restart: on-failure
+    ports:
+      - '6379:6379'
+    volumes:
+      - ./storage/redis:/data
