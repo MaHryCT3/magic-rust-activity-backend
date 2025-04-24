@@ -1,5 +1,6 @@
+import os
 from dataclasses import dataclass, field
-
+import shutil
 import dramatiq
 
 from app.repositories.voices_records import VoiceRecordsRepository
@@ -20,6 +21,8 @@ class CraigAudioTranscribePipeline:
 
     voice_record_repository: VoiceRecordsRepository = field(default_factory=VoiceRecordsRepository, init=False)
 
+    _remove_dir_on_ready: str | None = field(default=None, init=False)
+
     async def run(self):
         try:
             await self._run()
@@ -29,6 +32,9 @@ class CraigAudioTranscribePipeline:
                 is_error=True,
             )
             raise ex
+        finally:
+            if self._remove_dir_on_ready:
+                shutil.rmtree(self._remove_dir_on_ready)
 
     async def _run(self):
         await self._update_status(VoiceProcessStatusEnum.DOWNLOADING_AUDIO)
@@ -36,6 +42,7 @@ class CraigAudioTranscribePipeline:
             record_id=self.craig_record_id,
             key=self.craig_api_key,
         ).execute()
+        self._remove_dir_on_ready = downloaded_info.extract_path
 
         await self._update_status(VoiceProcessStatusEnum.AUDIO_PROCESS)
         merged_audio_paths = await AudioMergeAction(
